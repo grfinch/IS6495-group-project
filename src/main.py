@@ -13,4 +13,6 @@ print("Placeholder: pre load the database here")
 #   attempt to create a bouquet
 #   order more flowers
 #   <think of some way to incorporate different user types>
+#       Employee: orders flowers and creates bouquets?
+#       Customer: can view available bouquets and buy some
 print("Placeholder: handle user input here")

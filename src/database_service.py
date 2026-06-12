@@ -27,4 +27,5 @@ class DatabaseService:
 #   Create a new type of bouquet (CREATE a new bouquet entry in the database)
 #   Assemble a bouquet (UPDATE: remove flowers from inventory to create a bouquet, then add the new bouquet to inventory)
 #   Discontinue a type of bouquet (DELETE an existing bouquet type from inventory.  If there are more than zero of that bouquet, ask they user if they are sure)
-#   Do something with user management.  I haven't gotten that far yet.
+#   Sell a bouquet (UPDATE the number of bouquets in inventory.  Track money?? I think money might be out of scope.  If we get done early, we can add it)
+#   Do something with user management.  Customers and Employees? I haven't gotten that far yet.
