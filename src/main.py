@@ -16,3 +16,4 @@ print("Placeholder: pre load the database here")
 #       Employee: orders flowers and creates bouquets?
 #       Customer: can view available bouquets and buy some
 print("Placeholder: handle user input here")
+print("test")
