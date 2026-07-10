@@ -154,6 +154,58 @@ class DatabaseService(db.DBbase):
         except Exception as e:
             print("An error occurred while deleting the bouquet: ", e)
 
+    def calculate_bouquet_price(self, bouquet_id: int) -> float:
+    # price * quantity for each flower in the recipe, plus Bouquet's markup.
+    # out in bouquet.py - it lives here because it needs to look up
+    # current flower prices, which the Bouquet class has no way to do.
+    try:
+        recipe = self.fetch_bouquet_recipe(bouquet_id)
+        if not recipe:
+            return 0.0
+        total = sum(price * quantity for _, _, price, quantity, _ in recipe)
+        return total * (1 + Bouquet.SURCHARGE)
+    except Exception as e:
+        print("An error occurred while calculating the bouquet price: ", e)
+    
+    def can_make_bouquet(self, bouquet_id: int) -> bool:
+    # Checks whether there's enough of every flower in stock to make one
+    # of this bouquet right now.
+    try:
+        recipe = self.fetch_bouquet_recipe(bouquet_id)
+        if not recipe:
+            return False
+        for _, _, _, quantity_needed, flower_id in recipe:
+            flower = self.fetch_flower(flower_id)
+            if flower is None or flower[4] < quantity_needed:
+                return False
+        return True
+    except Exception as e:
+        print("An error occurred while checking bouquet availability: ", e)
+        return False
+
+
+def sell_bouquet(self, bouquet_id: int) -> bool:
+    # Sells one of the given bouquet: pulls the flowers it needs out of
+    # inventory. Assumes can_make_bouquet() has already been checked by
+    # the caller so we don't leave stock partially decremented.
+    
+    # Money tracking is intentionally left out for now (see the note in
+    # the class docstring above) - this just handles the inventory side.
+    try:
+        if not self.can_make_bouquet(bouquet_id):
+            print("Not enough flowers in stock to make this bouquet.")
+            return False
+
+        recipe = self.fetch_bouquet_recipe(bouquet_id)
+        for _, _, _, quantity_needed, flower_id in recipe:
+            self.decrease_stock(flower_id, quantity_needed)
+
+        print("Sold 1 bouquet successfully")
+        return True
+    except Exception as e:
+        print("An error occurred while selling the bouquet: ", e)
+        return False
+
     ############################
     # General database methods #
     ############################
