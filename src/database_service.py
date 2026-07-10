@@ -128,6 +128,22 @@ class DatabaseService(db.DBbase):
         except Exception as e:
             print("An error occurred while fetching the bouquet(s): ", e)
 
+    ##### Gets the list of flowers needed to make one bouquet
+
+    def fetch_bouquet_recipe(self, bouquet_id: int):
+        # Returns the list of flowers and quantities needed for one bouquet
+        # JOINs the recipe table to Flower so we get names, not just ids
+        try:
+            return self.cursor.execute(
+                """SELECT f.name, f.color, f.price, bfq.quantity
+                   FROM Bouquet_Flower_Quantity bfq
+                   JOIN Flower f ON bfq.flower_id = f.flower_id
+                   WHERE bfq.bouquet_id = ?;""",
+                (bouquet_id,),
+            ).fetchall()
+        except Exception as e:
+            print("An error occurred while fetching the bouquet recipe: ", e)
+
     def delete_bouquet(self, bouquet_id: int):
         try:
             self.cursor.execute(
