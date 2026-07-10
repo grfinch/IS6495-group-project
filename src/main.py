@@ -24,24 +24,29 @@ class Project:
                         "exit": "Exit program"
                         }
         
-    # TODO (Anna): user types (Employee vs Customer) - this section is yours!
-    # Leaving some notes from what I noticed while building the menu,
+        # TODO (Anna): user types (Employee vs Customer) - this section is yours!
+        # Leaving some notes from what I noticed while building the menu,
         # in case they're useful - but totally your call how to design it :)
         #
         # While wiring up the options I noticed they naturally split:
         #   Employee-ish:  full inventory view (ids/stock), restock ("order"),
         #                  add flower, create bouquet type, discontinue bouquet
         #   Customer-ish:  flowers as name + price only, bouquets with recipes,
-        #                  buy a bouquet (this one isn't built yet - overlaps
-        #                  with Gaven's "sell a bouquet" TODO in database_service)
+        #                  buy a bouquet (see note below)
         #
-        # One idea: ask the role once at startup, then show a different
-        # menu_options dictionary per role. But if you have a better approach,
-        # go for it!
+        # NOTE: "buy a bouquet" is not built yet. It's the same feature as
+        # "sell a bouquet" in Gaven's TODO list in database_service.py -
+        # one feature, mentioned in two places, built by nobody so far :)
+        # 
         #
+        # One idea for the roles: ask "employee or customer?" once at startup,
+        # then show a different menu_options dictionary per role. But if you
+        # have a better approach, go for it!
+        
 
-    
-        # Welcome banner 
+        ################
+        #Welcome banner#
+        ################
       
         print("=" * 40)
         print("   🌸  Welcome to the Flower Shop  🌸")
