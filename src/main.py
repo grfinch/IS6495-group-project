@@ -11,7 +11,26 @@ from database_service import DatabaseService
 #       Employee: orders flowers and creates bouquets?
 #       Customer: can view available bouquets and buy some
 
+
+# Employee vs Customer is handled by the User/Employee/Customer classes
+# in user.py. We ask which type of user this is once at startup, then
+# use that user's own menu_options for the rest of the session.
+#
+# Employee-ish:  full inventory view (ids/stock), restock ("order"),
+#                add flower, create bouquet type, discontinue bouquet
+# Customer-ish:  flowers as name + price only, bouquets with recipes,
+#                buy a bouquet (not built yet - see user.py)
+
+
 class Project:
+    def prompt_for_user(self):
+        # Ask once at startup whether this session is an employee or a customer
+        while True:
+            choice = input("Are you an employee or a customer? (employee/customer): ").lower().strip()
+            try:
+                return create_user(choice)
+            except ValueError:
+                print("Please type 'employee' or 'customer'.")
 
     def run(self):
 
