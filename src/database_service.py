@@ -183,28 +183,27 @@ class DatabaseService(db.DBbase):
             print("An error occurred while checking bouquet availability: ", e)
             return False
 
+    def sell_bouquet(self, bouquet_id: int) -> bool:
+        # Sells one of the given bouquet: pulls the flowers it needs out of
+        # inventory. Assumes can_make_bouquet() has already been checked by
+        # the caller so we don't leave stock partially decremented.
 
-def sell_bouquet(self, bouquet_id: int) -> bool:
-    # Sells one of the given bouquet: pulls the flowers it needs out of
-    # inventory. Assumes can_make_bouquet() has already been checked by
-    # the caller so we don't leave stock partially decremented.
+        # Money tracking is intentionally left out for now (see the note in
+        # the class docstring above) - this just handles the inventory side.
+        try:
+            if not self.can_make_bouquet(bouquet_id):
+                print("Not enough flowers in stock to make this bouquet.")
+                return False
 
-    # Money tracking is intentionally left out for now (see the note in
-    # the class docstring above) - this just handles the inventory side.
-    try:
-        if not self.can_make_bouquet(bouquet_id):
-            print("Not enough flowers in stock to make this bouquet.")
+            recipe = self.fetch_bouquet_recipe(bouquet_id)
+            for _, _, _, quantity_needed, flower_id in recipe:
+                self.decrease_stock(flower_id, quantity_needed)
+
+            print("Sold 1 bouquet successfully")
+            return True
+        except Exception as e:
+            print("An error occurred while selling the bouquet: ", e)
             return False
-
-        recipe = self.fetch_bouquet_recipe(bouquet_id)
-        for _, _, _, quantity_needed, flower_id in recipe:
-            self.decrease_stock(flower_id, quantity_needed)
-
-        print("Sold 1 bouquet successfully")
-        return True
-    except Exception as e:
-        print("An error occurred while selling the bouquet: ", e)
-        return False
 
     ############################
     # General database methods #
