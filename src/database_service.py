@@ -129,7 +129,6 @@ class DatabaseService(db.DBbase):
             print("An error occurred while fetching the bouquet(s): ", e)
 
     ##### Gets the list of flowers needed to make one bouquet
-
     def fetch_bouquet_recipe(self, bouquet_id: int):
         # Returns the list of flowers and quantities needed for one bouquet
         # JOINs the recipe table to Flower so we get names, not just ids
@@ -184,9 +183,8 @@ class DatabaseService(db.DBbase):
             return False
 
     def sell_bouquet(self, bouquet_id: int) -> bool:
-        # Sells one of the given bouquet: pulls the flowers it needs out of
-        # inventory. Assumes can_make_bouquet() has already been checked by
-        # the caller so we don't leave stock partially decremented.
+        # Sells one of the given bouquet: pulls the flowers it needs out of inventory.
+        # Calls can_make_bouquet() to be sure nothing gets partially decremented
 
         # Money tracking is intentionally left out for now (see the note in
         # the class docstring above) - this just handles the inventory side.
