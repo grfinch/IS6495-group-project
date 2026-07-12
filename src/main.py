@@ -111,6 +111,7 @@ class Project:
       
         print("=" * 40)
         print("   🌸  Welcome to the Flower Shop  🌸")
+        print(f"   Logged in as: {current_user.name} ({current_user.role})")
         print("=" * 40)
 
      
@@ -137,10 +138,15 @@ class Project:
             flower_shop = DatabaseService()
 
             if user_selection == "flowers":
-                # Show the full inventory with ids, prices, and stock
                 results = flower_shop.fetch_flower()
-                for item in results:
-                    print(f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f} - {item[4]} in stock")
+                if isinstance(current_user, Employee):
+                    # Employees see the full picture: id, price, and stock
+                    for item in results:
+                        print(f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f} - {item[4]} in stock")
+                else:
+                    # Customers just see the name and price
+                    for item in results:
+                        print(f"  {item[2]} {item[1]} - ${item[3]:.2f}")
                 input("Press return to continue...")
 
             elif user_selection == "bouquets":
@@ -200,6 +206,35 @@ class Project:
                 except ValueError:
                     print("Please enter numbers only.")
                 input("Press return to continue...")
+
+            
+            
+            elif user_selection in ("buy", "sell"):
+                # Same feature either way: pull the flowers needed for one
+                # bouquet out of inventory. Customers see it as "buy",
+                # employees see it as "sell".
+                bouquets = flower_shop.fetch_bouquet()
+                for bouquet in bouquets:
+                    price = flower_shop.calculate_bouquet_price(bouquet[0])
+                    print(f"  {bouquet[0]:>3} | {bouquet[1]} - ${price:.2f}")
+ 
+                try:
+                    bouquet_id = int(input("Enter the bouquet id: "))
+                    if flower_shop.fetch_bouquet(bouquet_id) is None:
+                        print("That bouquet id doesn't exist.")
+                    elif not flower_shop.can_make_bouquet(bouquet_id):
+                        print("Sorry, we don't have enough flowers in stock for that bouquet right now.")
+                    else:
+                        price = flower_shop.calculate_bouquet_price(bouquet_id)
+                        confirm = input(f"This bouquet costs ${price:.2f}, confirm? (y/n) ").lower()
+                        if confirm == "y":
+                            flower_shop.sell_bouquet(bouquet_id)
+                        else:
+                            print("Purchase cancelled")
+                except ValueError:
+                    print("Please enter numbers only.")
+                input("Press return to continue...")
+            
 
             elif user_selection == "discontinue":
                 # Show bouquets so the user knows the ids
