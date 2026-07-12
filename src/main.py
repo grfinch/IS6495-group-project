@@ -1,3 +1,5 @@
+import getpass
+
 from flower import Flower
 from bouquet import Bouquet
 from database_service import DatabaseService
@@ -11,28 +13,68 @@ from database_service import DatabaseService
 #       Employee: orders flowers and creates bouquets?
 #       Customer: can view available bouquets and buy some
 
-
 # Employee vs Customer is handled by the User/Employee/Customer classes
-# in user.py. We ask which type of user this is once at startup, then
-# use that user's own menu_options for the rest of the session.
+# in user.py, each backed by a real row in the Customer or Employee table.
+# At startup we ask which type of account this is, then log in or register,
+# then use that user's own menu_options for the rest of the session.
 #
 # Employee-ish:  full inventory view (ids/stock), restock ("order"),
-#                add flower, create bouquet type, discontinue bouquet
-# Customer-ish:  flowers as name + price only, bouquets with recipes,
-#                buy a bouquet (not built yet - see user.py)
+#                add flower, create bouquet type, discontinue bouquet, sell
+# Customer-ish:  flowers as name + price only, bouquets with recipes, buy
 
 
 class Project:
-    def prompt_for_user(self):
-        # Ask once at startup whether this session is an employee or a customer
+    
+        def prompt_for_user(self, flower_shop):
+        # Ask once at startup: employee or customer, then log in or
+        # register. Loops until a real account is found/created.
         while True:
-            choice = input("Are you an employee or a customer? (employee/customer): ").lower().strip()
-            try:
-                return create_user(choice)
-            except ValueError:
+            account_type = input("Are you an employee or a customer? (employee/customer): ").lower().strip()
+            if account_type not in ("employee", "customer"):
                 print("Please type 'employee' or 'customer'.")
+                continue
+ 
+            user_class = Employee if account_type == "employee" else Customer
+ 
+            action = input("Do you have an account? (login/register): ").lower().strip()
+            if action not in ("login", "register"):
+                print("Please type 'login' or 'register'.")
+                continue
+ 
+            username = input("Username: ").strip()
+            # getpass hides the password as it's typed. Falls back to a normal (visible) prompt if the terminal doesn't support it.
+            try:
+                password = getpass.getpass("Password: ")
+            except Exception:
+                password = input("Password: ")
+ 
+            if action == "login":
+                user = user_class.login(flower_shop, username, password)
+                if user is None:
+                    print("Invalid username or password.")
+                    continue
+                return user
+ 
+            else:  # register
+                name = input("Enter your full name: ").strip()
+                if user_class is Customer:
+                    email = input("Enter your email (optional): ").strip() or None
+                    user = Customer.register(flower_shop, username, password, name, email)
+                else:
+                    user = Employee.register(flower_shop, username, password, name)
+ 
+                if user is None:
+                    # flower_shop already printed why (e.g. username taken)
+                    continue
+                return user
 
     def run(self):
+
+        # One DatabaseService/connection for the whole session
+        flower_shop = DatabaseService()
+ 
+        current_user = self.prompt_for_user(flower_shop)
+        menu_options = current_user.get_menu_options()
 
         # The keys are what the user types, the values are the descriptions
         menu_options = {"flowers": "View flower inventory",
@@ -85,6 +127,11 @@ class Project:
             print("-" * 40)
 
             user_selection = input("Enter an option: ").lower()
+
+            # Guard against typing a command that isn't in this user's menu (e.g. a customer typing "order" or "discontinue")
+            if user_selection != "exit" and not current_user.can_access(user_selection):
+                print("Invalid selection, please try again.")
+                continue
 
             # Create the database service to handle all DB interactions
             flower_shop = DatabaseService()
