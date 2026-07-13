@@ -80,9 +80,9 @@ We collaborated through a shared GitHub repository, dividing ownership by module
 
 | Team member | Primary contributions |
 |-------------|----------------------|
-| Gaven | Database base class (`db_base.py`), schema design, database service layer |
+| Gaven | Database base class (`db_base.py`), schema design, database service layer and its CRUD functions|
 | Anna | User class hierarchy and role logic (`user.py`), authentication flow |
-| Gaby | Interactive menu and program flow (`main.py`), integration of the user layer, database debugging, GitHub coordination |
+| Gaby | Interactive menu and program flow (`main.py`), integration of the user layer |
 
 In short, our critical thinking came down to three habits: knowing what is good enough for the situation, being honest about limitations, and testing our assumptions instead of trusting them.
 
