@@ -33,7 +33,7 @@ NOTE: the rubric says that a DBbase class is provided, but I could't find one
 #   Create a new type of bouquet (CREATE a new bouquet entry in the database)
 #   Discontinue a type of bouquet (DELETE an existing bouquet type from inventory.  If there are more than zero of that bouquet, ask they user if they are sure)
 #   Sell a bouquet (UPDATE: remove flowers from inventory to create the bouquet. Track money?? I think money might be out of scope.  If we get done early, we can add it)
-#   Do something with user management.  Customers and Employees? I haven't gotten that far yet.
+#   User management: Customer and Employee accounts (see methods below)
 class DatabaseService(db.DBbase):
 
     def __init__(self):
@@ -144,11 +144,15 @@ class DatabaseService(db.DBbase):
 
     ##### Gets the list of flowers needed to make one bouquet
     def fetch_bouquet_recipe(self, bouquet_id: int):
-        # Returns the list of flowers and quantities needed for one bouquet
-        # JOINs the recipe table to Flower so we get names, not just ids
+        # Returns the list of flowers and quantities needed for one bouquet.
+        # Each row is (name, color, price, quantity, flower_id).
+        # JOINs the recipe table to Flower so we get names, not just ids.
+        # flower_id is included last so sell/price/stock checks can look
+        # flowers back up without breaking the (name, color, price, qty)
+        # order that the menu display code relies on.
         try:
             return self.cursor.execute(
-                """SELECT f.name, f.color, f.price, bfq.quantity
+                """SELECT f.name, f.color, f.price, bfq.quantity, f.flower_id
                    FROM Bouquet_Flower_Quantity bfq
                    JOIN Flower f ON bfq.flower_id = f.flower_id
                    WHERE bfq.bouquet_id = ?;""",
@@ -169,8 +173,8 @@ class DatabaseService(db.DBbase):
 
     def calculate_bouquet_price(self, bouquet_id: int) -> float:
         # price * quantity for each flower in the recipe, plus Bouquet's markup.
-        # out in bouquet.py - it lives here because it needs to look up
-        # current flower prices, which the Bouquet class has no way to do.
+        # It lives here because it needs to look up current flower prices,
+        # which the Bouquet class has no way to do.
         try:
             recipe = self.fetch_bouquet_recipe(bouquet_id)
             if not recipe:
@@ -378,11 +382,14 @@ class DatabaseService(db.DBbase):
     def reset_database(self):
         # This database uses a many-to-many relationship.
         # That relationship is stored in the Bouquet_Flower_Quantity table.
+        # Also creates the Customer and Employee account tables.
         try:
             sql = """
                 DROP TABLE IF EXISTS Bouquet_Flower_Quantity;
                 DROP TABLE IF EXISTS Bouquet;
                 DROP TABLE IF EXISTS Flower;
+                DROP TABLE IF EXISTS Customer;
+                DROP TABLE IF EXISTS Employee;
 
                 CREATE TABLE Flower (
                     flower_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -414,6 +421,23 @@ class DatabaseService(db.DBbase):
                         REFERENCES Flower(flower_id)
                         ON DELETE CASCADE
                         ON UPDATE CASCADE
+                );
+
+                CREATE TABLE Customer (
+                    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL UNIQUE,
+                    password_hash TEXT NOT NULL,
+                    salt TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    email TEXT
+                );
+
+                CREATE TABLE Employee (
+                    employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL UNIQUE,
+                    password_hash TEXT NOT NULL,
+                    salt TEXT NOT NULL,
+                    name TEXT NOT NULL
                 );
             """
             self.execute_script(sql)

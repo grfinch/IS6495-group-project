@@ -3,6 +3,7 @@ import getpass
 from flower import Flower
 from bouquet import Bouquet
 from database_service import DatabaseService
+from user import Customer, Employee
 
 # present the user with options:
 #   view flower inventory
@@ -24,8 +25,8 @@ from database_service import DatabaseService
 
 
 class Project:
-    
-        def prompt_for_user(self, flower_shop):
+
+    def prompt_for_user(self, flower_shop):
         # Ask once at startup: employee or customer, then log in or
         # register. Loops until a real account is found/created.
         while True:
@@ -33,28 +34,28 @@ class Project:
             if account_type not in ("employee", "customer"):
                 print("Please type 'employee' or 'customer'.")
                 continue
- 
+
             user_class = Employee if account_type == "employee" else Customer
- 
+
             action = input("Do you have an account? (login/register): ").lower().strip()
             if action not in ("login", "register"):
                 print("Please type 'login' or 'register'.")
                 continue
- 
+
             username = input("Username: ").strip()
             # getpass hides the password as it's typed. Falls back to a normal (visible) prompt if the terminal doesn't support it.
             try:
                 password = getpass.getpass("Password: ")
             except Exception:
                 password = input("Password: ")
- 
+
             if action == "login":
                 user = user_class.login(flower_shop, username, password)
                 if user is None:
                     print("Invalid username or password.")
                     continue
                 return user
- 
+
             else:  # register
                 name = input("Enter your full name: ").strip()
                 if user_class is Customer:
@@ -62,7 +63,7 @@ class Project:
                     user = Customer.register(flower_shop, username, password, name, email)
                 else:
                     user = Employee.register(flower_shop, username, password, name)
- 
+
                 if user is None:
                     # flower_shop already printed why (e.g. username taken)
                     continue
@@ -72,60 +73,34 @@ class Project:
 
         # One DatabaseService/connection for the whole session
         flower_shop = DatabaseService()
- 
-        current_user = self.prompt_for_user(flower_shop)
-        menu_options = current_user.get_menu_options()
 
-        # The keys are what the user types, the values are the descriptions
-        menu_options = {"flowers": "View flower inventory",
-                        "bouquets": "View types of bouquets you can create",
-                        "create": "Create a bouquet",
-                        "order": "Order more flowers",
-                        "discontinue": "Discontinue a bouquet type",
-                        "exit": "Exit program"
-                        }
-        
-        # TODO (Anna): user types (Employee vs Customer) - this section is yours!
-        # Leaving some notes from what I noticed while building the menu,
-        # in case they're useful - but totally your call how to design it :)
-        #
-        # While wiring up the options I noticed they naturally split:
-        #   Employee-ish:  full inventory view (ids/stock), restock ("order"),
-        #                  add flower, create bouquet type, discontinue bouquet
-        #   Customer-ish:  flowers as name + price only, bouquets with recipes,
-        #                  buy a bouquet (see note below)
-        #
-        # NOTE: "buy a bouquet" is not built yet. It's the same feature as
-        # "sell a bouquet" in Gaven's TODO list in database_service.py -
-        # one feature, mentioned in two places, built by nobody so far :)
-        # 
-        #
-        # One idea for the roles: ask "employee or customer?" once at startup,
-        # then show a different menu_options dictionary per role. But if you
-        # have a better approach, go for it!
-        
+        current_user = self.prompt_for_user(flower_shop)
+
+        # Menu options come from the user's role (Employee vs Customer),
+        # defined in user.py. Keys are what the user types, values are
+        # the descriptions.
+        menu_options = current_user.get_menu_options()
 
         ################
         #Welcome banner#
         ################
-      
-        print("=" * 40)
-        print("   🌸  Welcome to the Flower Shop  🌸")
-        print(f"   Logged in as: {current_user.name} ({current_user.role})")
-        print("=" * 40)
 
-     
-        # Menu loop, repeats until user types exit 
-        
+        print("=" * 55)
+        print("          🌸  Welcome to the Flower Shop  🌸")
+        print(f"   Logged in as: {current_user.name} ({current_user.role})")
+        print("=" * 55)
+
+        # Menu loop, repeats until user types exit
+
         user_selection = ""
         while user_selection != "exit":
             # Show the option list each time through the loop
-            print("\n" + "-" * 40)
-            print("*** Option List ***")
+            print("\n" + "-" * 55)
+            print("              *** Option List ***")
             for key, value in menu_options.items():
                 # pads the key to 12 characters so the menu lines up
-                print(f"  [{key:<12}] {value}")
-            print("-" * 40)
+                print(f"  [{key:<15}] {value}")
+            print("-" * 55)
 
             user_selection = input("Enter an option: ").lower()
 
@@ -134,17 +109,15 @@ class Project:
                 print("Invalid selection, please try again.")
                 continue
 
-            # Create the database service to handle all DB interactions
-            flower_shop = DatabaseService()
-
             if user_selection == "flowers":
+                #Rows come back as flower_id, name, color, price, stock)
                 results = flower_shop.fetch_flower()
                 if isinstance(current_user, Employee):
-                    # Employees see the full picture: id, price, and stock
+                    # Employees see ids and stock (needed for "order"/"create")
                     for item in results:
                         print(f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f} - {item[4]} in stock")
                 else:
-                    # Customers just see the name and price
+                    # Customers see name and price only
                     for item in results:
                         print(f"  {item[2]} {item[1]} - ${item[3]:.2f}")
                 input("Press return to continue...")
@@ -154,15 +127,16 @@ class Project:
                 bouquets = flower_shop.fetch_bouquet()
                 for bouquet in bouquets:
                     print(f"\n  {bouquet[1]}:")   # bouquet name
+                    # Recipe rows: (name, color, price, quantity)
                     recipe = flower_shop.fetch_bouquet_recipe(bouquet[0])
                     for ingredient in recipe:
-                        # example: 12 x Red Rose ($2.50 each)
                         print(f"      {ingredient[3]} x {ingredient[1]} {ingredient[0]} (${ingredient[2]:.2f} each)")
                 input("\nPress return to continue...")
 
             elif user_selection == "create":
                 # Show flowers so the user knows the ids
                 results = flower_shop.fetch_flower()
+                #prints one flower per row
                 for item in results:
                     print(f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f}")
 
@@ -207,8 +181,6 @@ class Project:
                     print("Please enter numbers only.")
                 input("Press return to continue...")
 
-            
-            
             elif user_selection in ("buy", "sell"):
                 # Same feature either way: pull the flowers needed for one
                 # bouquet out of inventory. Customers see it as "buy",
@@ -217,7 +189,7 @@ class Project:
                 for bouquet in bouquets:
                     price = flower_shop.calculate_bouquet_price(bouquet[0])
                     print(f"  {bouquet[0]:>3} | {bouquet[1]} - ${price:.2f}")
- 
+
                 try:
                     bouquet_id = int(input("Enter the bouquet id: "))
                     if flower_shop.fetch_bouquet(bouquet_id) is None:
@@ -234,7 +206,6 @@ class Project:
                 except ValueError:
                     print("Please enter numbers only.")
                 input("Press return to continue...")
-            
 
             elif user_selection == "discontinue":
                 # Show bouquets so the user knows the ids
@@ -249,6 +220,40 @@ class Project:
                         flower_shop.delete_bouquet(bouquet_id)
                     else:
                         print("Discontinue aborted")
+                except ValueError:
+                    print("Please enter numbers only.")
+                input("Press return to continue...")
+
+            elif user_selection == "add customer":
+                username = input("New customer's username: ").strip()
+                # Hide the password as it's typed, same as the login prompt
+                try:
+                    password = getpass.getpass("New customer's password: ")
+                except Exception:
+                    password = input("New customer's password: ")
+                name = input("New customer's full name: ").strip()
+                email = input("New customer's email (optional): ").strip() or None
+
+                # add_customer prints its own success/failure message
+                flower_shop.add_customer(username, password, name, email)
+                input("Press return to continue...")
+
+            elif user_selection == "remove customer":
+                customers = flower_shop.fetch_customer()
+                for customer in customers:
+                    # customer = (customer_id, username, name, email)
+                    print(f"  {customer[0]:>3} | {customer[1]} - {customer[2]}")
+
+                try:
+                    customer_id = int(input("Enter the customer id to remove: "))
+                    if flower_shop.fetch_customer(customer_id) is None:
+                        print("That customer id doesn't exist.")
+                    else:
+                        confirm = input("This will permanently delete the account, continue? (y/n) ").lower()
+                        if confirm == "y":
+                            flower_shop.delete_customer(customer_id)
+                        else:
+                            print("Removal cancelled")
                 except ValueError:
                     print("Please enter numbers only.")
                 input("Press return to continue...")

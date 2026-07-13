@@ -18,7 +18,7 @@
 
 
 class User:
-     def __init__(self, user_id: int = None, username: str = "", name: str = ""):
+    def __init__(self, user_id: int = None, username: str = "", name: str = ""):
         self.user_id = user_id
         self.username = username
         self.name = name
@@ -43,6 +43,8 @@ class Employee(User):
 
     def get_menu_options(self) -> dict:
         return {
+            "add customer": "Add a new customer account",
+            "remove customer": "Remove a customer account",
             "flowers": "View flower inventory",
             "bouquets": "View types of bouquets you can create",
             "create": "Create a bouquet",
@@ -50,6 +52,7 @@ class Employee(User):
             "sell": "Sell a bouquet",
             "discontinue": "Discontinue a bouquet type",
             "exit": "Exit program",
+
         }
 
     @classmethod
@@ -61,7 +64,7 @@ class Employee(User):
             return None
         employee_id, db_username, db_name = record
         return cls(user_id=employee_id, username=db_username, name=db_name)
- 
+
     @classmethod
     def login(cls, db_service, username: str, password: str):
         # Returns an Employee on success, or None if the username/password
@@ -74,7 +77,7 @@ class Employee(User):
 
 
 class Customer(User):
-     def __init__(self, user_id: int = None, username: str = "", name: str = "", email: str = None):
+    def __init__(self, user_id: int = None, username: str = "", name: str = "", email: str = None):
         super().__init__(user_id, username, name)
         self.email = email
 
@@ -97,7 +100,7 @@ class Customer(User):
             return None
         customer_id, db_username, db_name, db_email = record
         return cls(user_id=customer_id, username=db_username, name=db_name, email=db_email)
- 
+
     @classmethod
     def login(cls, db_service, username: str, password: str):
         record = db_service.authenticate_customer(username, password)
