@@ -80,7 +80,7 @@ We collaborated through a shared GitHub repository, dividing ownership by module
 
 | Team member | Primary contributions |
 |-------------|----------------------|
-| Gaven | Database base class (`db_base.py`), schema design, database service layer and its CRUD functions|
+| Gaven | Database base class (`db_base.py`), schema design, database service layer and its CRUD functions (`database_service.py`)|
 | Anna | User class hierarchy and role logic (`user.py`), authentication flow |
 | Gaby | Interactive menu and program flow (`main.py`), integration of the user layer |
 
