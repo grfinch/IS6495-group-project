@@ -54,6 +54,23 @@ erDiagram
         INTEGER flower_id PK, FK
         INTEGER quantity
     }
+
+        CUSTOMER {
+        INTEGER customer_id PK
+        TEXT username
+        TEXT password_hash
+        TEXT salt
+        TEXT name
+        TEXT email
+    }
+
+    EMPLOYEE {
+        INTEGER employee_id PK
+        TEXT username
+        TEXT password_hash
+        TEXT salt
+        TEXT name
+    }
 ```
 
 ## Ethics & Critical Thinking
