@@ -79,7 +79,9 @@ We also thought critically about the limits of our design.
 
 Our password protection works well for a course project. A real production system would go further: stronger security techniques, password rules, and a record of actions like account deletions.
 
-One specific limitation we found ourselves: when an employee creates a customer account, the employee also sets the password. We know this is an area of improvement. Ideally, the customer would get a temporary password and be asked to reset it on their first login. A password reset feature was out of scope for this project.
+One specific limitation we found ourselves: 
+
+Customers and employees both self-register and choose their own password directly. We did not implement password change or password reset; a user who forgets their password would need a new account. This was a scope decision: implementing reset properly requires an out-of-band verification channel (e.g. email), which was out of scope for this project.
 
 We made similar scope decisions throughout. For example, we track inventory but left money and payment handling out. Our rule was simple: only build what we could fully finish and test in five weeks.
 
