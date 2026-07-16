@@ -30,7 +30,11 @@ class Project:
         # Ask once at startup: employee or customer, then log in or
         # register. Loops until a real account is found/created.
         while True:
-            account_type = input("Are you an employee or a customer? (employee/customer): ").lower().strip()
+            account_type = (
+                input("Are you an employee or a customer? (employee/customer): ")
+                .lower()
+                .strip()
+            )
             if account_type not in ("employee", "customer"):
                 print("Please type 'employee' or 'customer'.")
                 continue
@@ -60,7 +64,9 @@ class Project:
                 name = input("Enter your full name: ").strip()
                 if user_class is Customer:
                     email = input("Enter your email (optional): ").strip() or None
-                    user = Customer.register(flower_shop, username, password, name, email)
+                    user = Customer.register(
+                        flower_shop, username, password, name, email
+                    )
                 else:
                     user = Employee.register(flower_shop, username, password, name)
 
@@ -82,7 +88,7 @@ class Project:
         menu_options = current_user.get_menu_options()
 
         ################
-        #Welcome banner#
+        # Welcome banner#
         ################
 
         print("=" * 55)
@@ -110,12 +116,14 @@ class Project:
                 continue
 
             if user_selection == "flowers":
-                #Rows come back as flower_id, name, color, price, stock)
+                # Rows come back as flower_id, name, color, price, stock)
                 results = flower_shop.fetch_flower()
                 if isinstance(current_user, Employee):
                     # Employees see ids and stock (needed for "order"/"create")
                     for item in results:
-                        print(f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f} - {item[4]} in stock")
+                        print(
+                            f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f} - {item[4]} in stock"
+                        )
                 else:
                     # Customers see name and price only
                     for item in results:
@@ -126,17 +134,19 @@ class Project:
                 # Show every bouquet and the flowers inside it
                 bouquets = flower_shop.fetch_bouquet()
                 for bouquet in bouquets:
-                    print(f"\n  {bouquet[1]}:")   # bouquet name
+                    print(f"\n  {bouquet[1]}:")  # bouquet name
                     # Recipe rows: (name, color, price, quantity)
                     recipe = flower_shop.fetch_bouquet_recipe(bouquet[0])
                     for ingredient in recipe:
-                        print(f"      {ingredient[3]} x {ingredient[1]} {ingredient[0]} (${ingredient[2]:.2f} each)")
+                        print(
+                            f"      {ingredient[3]} x {ingredient[1]} {ingredient[0]} (${ingredient[2]:.2f} each)"
+                        )
                 input("\nPress return to continue...")
 
             elif user_selection == "create":
                 # Show flowers so the user knows the ids
                 results = flower_shop.fetch_flower()
-                #prints one flower per row
+                # prints one flower per row
                 for item in results:
                     print(f"  {item[0]:>3} | {item[2]} {item[1]} - ${item[3]:.2f}")
 
@@ -176,7 +186,9 @@ class Project:
 
                     # Show the updated flower so the user sees it worked
                     updated = flower_shop.fetch_flower(flower_id)
-                    print(f"Updated: {updated[2]} {updated[1]} now has {updated[4]} in stock")
+                    print(
+                        f"Updated: {updated[2]} {updated[1]} now has {updated[4]} in stock"
+                    )
                 except ValueError:
                     print("Please enter numbers only.")
                 input("Press return to continue...")
@@ -195,10 +207,14 @@ class Project:
                     if flower_shop.fetch_bouquet(bouquet_id) is None:
                         print("That bouquet id doesn't exist.")
                     elif not flower_shop.can_make_bouquet(bouquet_id):
-                        print("Sorry, we don't have enough flowers in stock for that bouquet right now.")
+                        print(
+                            "Sorry, we don't have enough flowers in stock for that bouquet right now."
+                        )
                     else:
                         price = flower_shop.calculate_bouquet_price(bouquet_id)
-                        confirm = input(f"This bouquet costs ${price:.2f}, confirm? (y/n) ").lower()
+                        confirm = input(
+                            f"This bouquet costs ${price:.2f}, confirm? (y/n) "
+                        ).lower()
                         if confirm == "y":
                             flower_shop.sell_bouquet(bouquet_id)
                         else:
@@ -215,7 +231,9 @@ class Project:
 
                 try:
                     bouquet_id = int(input("Enter the bouquet id to discontinue: "))
-                    confirm = input("This will permanently remove the bouquet, continue? (y/n) ").lower()
+                    confirm = input(
+                        "This will permanently remove the bouquet, continue? (y/n) "
+                    ).lower()
                     if confirm == "y":
                         flower_shop.delete_bouquet(bouquet_id)
                     else:
@@ -235,7 +253,7 @@ class Project:
                 email = input("New customer's email (optional): ").strip() or None
 
                 # add_customer prints its own success/failure message
-                flower_shop.add_customer(username, password, name, email)
+                flower_shop.add_user(username, password, name, email)
                 input("Press return to continue...")
 
             elif user_selection == "remove customer":
@@ -249,7 +267,9 @@ class Project:
                     if flower_shop.fetch_customer(customer_id) is None:
                         print("That customer id doesn't exist.")
                     else:
-                        confirm = input("This will permanently delete the account, continue? (y/n) ").lower()
+                        confirm = input(
+                            "This will permanently delete the account, continue? (y/n) "
+                        ).lower()
                         if confirm == "y":
                             flower_shop.delete_customer(customer_id)
                         else:
@@ -264,7 +284,6 @@ class Project:
                     print("Invalid selection, please try again.")
 
         print("\nThanks for visiting the Flower Shop! 🌸")
-
 
 
 project = Project()

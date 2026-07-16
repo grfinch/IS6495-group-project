@@ -33,10 +33,10 @@ We built the project in layers, from the database up, so each stage could be tes
 
 ```mermaid
 erDiagram
-    FLOWER ||--o{ BOUQUET_FLOWER_QUANTITY : "used in"
-    BOUQUET ||--o{ BOUQUET_FLOWER_QUANTITY : "contains"
+    Flower ||--o{ Bouquet_Flower_Quantity : "used in"
+    Bouquet ||--o{ Bouquet_Flower_Quantity : "contains"
 
-    FLOWER {
+    Flower {
         INTEGER flower_id PK
         TEXT name
         TEXT color
@@ -44,32 +44,24 @@ erDiagram
         INTEGER quantity
     }
 
-    BOUQUET {
+    Bouquet {
         INTEGER bouquet_id PK
         TEXT name
     }
 
-    BOUQUET_FLOWER_QUANTITY {
+    Bouquet_Flower_Quantity {
         INTEGER bouquet_id PK, FK
         INTEGER flower_id PK, FK
         INTEGER quantity
     }
 
-        CUSTOMER {
-        INTEGER customer_id PK
-        TEXT username
-        TEXT password_hash
-        TEXT salt
-        TEXT name
-        TEXT email
-    }
-
-    EMPLOYEE {
+    User {
         INTEGER employee_id PK
         TEXT username
         TEXT password_hash
         TEXT salt
         TEXT name
+        BOOLEAN is_employee
     }
 ```
 

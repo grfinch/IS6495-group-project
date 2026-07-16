@@ -48,7 +48,6 @@ class DatabaseService(db.DBbase):
         password_hash = hashlib.sha256((salt + password).encode()).hexdigest()
         return password_hash, salt
 
-    
     ###########################
     # Flower database methods #
     ###########################
@@ -221,160 +220,109 @@ class DatabaseService(db.DBbase):
             print("An error occurred while selling the bouquet: ", e)
             return False
 
-
-    
     #############################
-    # Customer database methods #
+    # User database methods #
     #############################
-    def add_customer(self, username: str, password: str, name: str, email: str = None):
-        # Creates a new customer account. Returns the account's public info
+    def add_user(
+        self,
+        username: str,
+        password: str,
+        name: str,
+        email: str = None,
+        is_employee: bool = False,
+    ):
+        # Creates a new user account. Returns the account's public info
         # (never the password hash/salt) on success, or None if it failed -
         # most commonly because the username is already taken.
         try:
             password_hash, salt = self._hash_password(password)
             self.cursor.execute(
-                "INSERT INTO Customer (username, password_hash, salt, name, email) VALUES (?, ?, ?, ?, ?);",
-                (username, password_hash, salt, name, email),
+                "INSERT INTO User (username, password_hash, salt, name, email, is_employee) VALUES (?, ?, ?, ?, ?, ?);",
+                (username, password_hash, salt, name, email, is_employee),
             )
             self.connection.commit()
-            customer_id = self.cursor.lastrowid
-            print(f"Created customer account for {username}")
-            return (customer_id, username, name, email)
+            user_id = self.cursor.lastrowid
+            print(f"Created user account for {username}")
+            return (user_id, username, name, email)
         except sqlite3.IntegrityError:
             print("That username is already taken.")
             return None
         except Exception as e:
-            print("An error occurred while creating the customer account: ", e)
+            print("An error occurred while creating the user account: ", e)
             return None
- 
-    def fetch_customer(self, id: int = None):
+
+    def fetch_user(self, id: int = None):
         # Public info only - never returns password_hash/salt
         try:
             if id is not None:
                 return self.cursor.execute(
-                    "SELECT customer_id, username, name, email FROM Customer WHERE customer_id = ?",
+                    "SELECT user_id, username, name, email FROM User WHERE user_id = ?",
                     (id,),
                 ).fetchone()
             else:
                 return self.cursor.execute(
-                    "SELECT customer_id, username, name, email FROM Customer"
+                    "SELECT user_id, username, name, email FROM User"
                 ).fetchall()
         except Exception as e:
-            print("An error occurred while fetching the customer(s): ", e)
- 
-    def fetch_customer_by_username(self, username: str):
+            print("An error occurred while fetching the user(s): ", e)
+
+    def fetch_user_by_username(self, username: str):
         try:
             return self.cursor.execute(
-                "SELECT customer_id, username, name, email FROM Customer WHERE username = ?",
+                "SELECT user_id, username, name, email FROM User WHERE username = ?",
                 (username,),
             ).fetchone()
         except Exception as e:
-            print("An error occurred while fetching the customer: ", e)
- 
-    def update_customer_email(self, customer_id: int, email: str):
+            print("An error occurred while fetching the user: ", e)
+
+    def update_user_email(self, user_id: int, email: str):
         try:
             self.cursor.execute(
-                "UPDATE Customer SET email = ? WHERE customer_id = ?", (email, customer_id)
+                "UPDATE User SET email = ? WHERE user_id = ?",
+                (email, user_id),
             )
             self.connection.commit()
-            print("Updated customer email successfully")
+            print("Updated user email successfully")
         except Exception as e:
-            print("An error occurred while updating the customer: ", e)
- 
-    def delete_customer(self, customer_id: int):
+            print("An error occurred while updating the user: ", e)
+
+    def delete_user(self, user_id: int):
         try:
-            self.cursor.execute("DELETE FROM Customer WHERE customer_id = ?", (customer_id,))
+            self.cursor.execute("DELETE FROM User WHERE user_id = ?", (user_id,))
             self.connection.commit()
-            print(f"Deleted customer id {customer_id} successfully")
+            print(f"Deleted user id {user_id} successfully")
         except Exception as e:
-            print("An error occurred while deleting the customer: ", e)
- 
-    def authenticate_customer(self, username: str, password: str):
-        # Returns the customer's public info if the password matches, else None
+            print("An error occurred while deleting the user: ", e)
+
+    def authenticate_user(self, username: str, password: str):
+        # Returns the user's public info if the password matches, else None
         try:
             row = self.cursor.execute(
-                "SELECT customer_id, username, password_hash, salt, name, email FROM Customer WHERE username = ?",
+                "SELECT user_id, username, password_hash, salt, name, email FROM User WHERE username = ?",
                 (username,),
             ).fetchone()
             if row is None:
                 return None
-            customer_id, db_username, password_hash, salt, name, email = row
+            user_id, db_username, password_hash, salt, name, email = row
             check_hash, _ = self._hash_password(password, salt)
             if check_hash == password_hash:
-                return (customer_id, db_username, name, email)
+                return (user_id, db_username, name, email)
             return None
         except Exception as e:
             print("An error occurred while logging in: ", e)
             return None
- 
-    #############################
-    # Employee database methods #
-    #############################
+
     def add_employee(self, username: str, password: str, name: str):
-        try:
-            password_hash, salt = self._hash_password(password)
-            self.cursor.execute(
-                "INSERT INTO Employee (username, password_hash, salt, name) VALUES (?, ?, ?, ?);",
-                (username, password_hash, salt, name),
-            )
-            self.connection.commit()
-            employee_id = self.cursor.lastrowid
-            print(f"Created employee account for {username}")
-            return (employee_id, username, name)
-        except sqlite3.IntegrityError:
-            print("That username is already taken.")
-            return None
-        except Exception as e:
-            print("An error occurred while creating the employee account: ", e)
-            return None
- 
-    def fetch_employee(self, id: int = None):
-        try:
-            if id is not None:
-                return self.cursor.execute(
-                    "SELECT employee_id, username, name FROM Employee WHERE employee_id = ?",
-                    (id,),
-                ).fetchone()
-            else:
-                return self.cursor.execute(
-                    "SELECT employee_id, username, name FROM Employee"
-                ).fetchall()
-        except Exception as e:
-            print("An error occurred while fetching the employee(s): ", e)
- 
-    def fetch_employee_by_username(self, username: str):
-        try:
-            return self.cursor.execute(
-                "SELECT employee_id, username, name FROM Employee WHERE username = ?",
-                (username,),
-            ).fetchone()
-        except Exception as e:
-            print("An error occurred while fetching the employee: ", e)
- 
-    def delete_employee(self, employee_id: int):
-        try:
-            self.cursor.execute("DELETE FROM Employee WHERE employee_id = ?", (employee_id,))
-            self.connection.commit()
-            print(f"Deleted employee id {employee_id} successfully")
-        except Exception as e:
-            print("An error occurred while deleting the employee: ", e)
- 
+        self.add_user(username, password, name, is_employee=True)
+
+    def add_customer(self, username: str, password: str, name: str, email: str):
+        self.add_user(username, password, name, email, is_employee=False)
+
     def authenticate_employee(self, username: str, password: str):
-        try:
-            row = self.cursor.execute(
-                "SELECT employee_id, username, password_hash, salt, name FROM Employee WHERE username = ?",
-                (username,),
-            ).fetchone()
-            if row is None:
-                return None
-            employee_id, db_username, password_hash, salt, name = row
-            check_hash, _ = self._hash_password(password, salt)
-            if check_hash == password_hash:
-                return (employee_id, db_username, name)
-            return None
-        except Exception as e:
-            print("An error occurred while logging in: ", e)
-            return None
+        return self.authenticate_user(username, password)
+
+    def authenticate_customer(self, username: str, password: str):
+        return self.authenticate_user(username, password)
 
     ############################
     # General database methods #
@@ -382,14 +330,13 @@ class DatabaseService(db.DBbase):
     def reset_database(self):
         # This database uses a many-to-many relationship.
         # That relationship is stored in the Bouquet_Flower_Quantity table.
-        # Also creates the Customer and Employee account tables.
+        # Also creates the User account tables.
         try:
             sql = """
                 DROP TABLE IF EXISTS Bouquet_Flower_Quantity;
                 DROP TABLE IF EXISTS Bouquet;
                 DROP TABLE IF EXISTS Flower;
-                DROP TABLE IF EXISTS Customer;
-                DROP TABLE IF EXISTS Employee;
+                DROP TABLE IF EXISTS User;
 
                 CREATE TABLE Flower (
                     flower_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -423,21 +370,14 @@ class DatabaseService(db.DBbase):
                         ON UPDATE CASCADE
                 );
 
-                CREATE TABLE Customer (
-                    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                CREATE TABLE User (
+                    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT NOT NULL UNIQUE,
                     password_hash TEXT NOT NULL,
                     salt TEXT NOT NULL,
                     name TEXT NOT NULL,
-                    email TEXT
-                );
-
-                CREATE TABLE Employee (
-                    employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username TEXT NOT NULL UNIQUE,
-                    password_hash TEXT NOT NULL,
-                    salt TEXT NOT NULL,
-                    name TEXT NOT NULL
+                    email TEXT,
+                    is_employee BOOLEAN NOT NULL DEFAULT 0
                 );
             """
             self.execute_script(sql)
