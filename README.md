@@ -55,6 +55,7 @@ erDiagram
         INTEGER quantity
     }
 ```
+<<<<<<< Updated upstream
 
 ## Ethics & Critical Thinking
 
@@ -87,3 +88,5 @@ We collaborated through a shared GitHub repository, dividing ownership by module
 In short, our critical thinking came down to three habits: knowing what is good enough for the situation, being honest about limitations, and testing our assumptions instead of trusting them.
 
 
+=======
+>>>>>>> Stashed changes
