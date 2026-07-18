@@ -3,7 +3,7 @@ import getpass
 from flower import Flower
 from bouquet import Bouquet
 from database_service import DatabaseService
-from user import Customer, Employee
+from user import User, Customer, Employee
 
 # present the user with options:
 #   view flower inventory
@@ -30,17 +30,6 @@ class Project:
         # Ask once at startup: employee or customer, then log in or
         # register. Loops until a real account is found/created.
         while True:
-            account_type = (
-                input("Are you an employee or a customer? (employee/customer): ")
-                .lower()
-                .strip()
-            )
-            if account_type not in ("employee", "customer"):
-                print("Please type 'employee' or 'customer'.")
-                continue
-
-            user_class = Employee if account_type == "employee" else Customer
-
             action = input("Do you have an account? (login/register): ").lower().strip()
             if action not in ("login", "register"):
                 print("Please type 'login' or 'register'.")
@@ -54,21 +43,31 @@ class Project:
                 password = input("Password: ")
 
             if action == "login":
-                user = user_class.login(flower_shop, username, password)
+                user = User.login(flower_shop, username, password)
                 if user is None:
                     print("Invalid username or password.")
                     continue
                 return user
-
             else:  # register
+                account_type = (
+                    input("Are you an employee or a customer? (employee/customer): ")
+                    .lower()
+                    .strip()
+                )
+                if account_type not in ("employee", "customer"):
+                    print("Please type 'employee' or 'customer'.")
+                    continue
+
                 name = input("Enter your full name: ").strip()
-                if user_class is Customer:
-                    email = input("Enter your email (optional): ").strip() or None
-                    user = Customer.register(
-                        flower_shop, username, password, name, email
-                    )
-                else:
-                    user = Employee.register(flower_shop, username, password, name)
+                email = input("Enter your email (optional): ").strip() or None
+                user = User.register(
+                    flower_shop,
+                    username,
+                    password,
+                    name,
+                    email,
+                    account_type == "employee",
+                )
 
                 if user is None:
                     # flower_shop already printed why (e.g. username taken)

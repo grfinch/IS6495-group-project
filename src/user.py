@@ -38,6 +38,48 @@ class User:
         # Anything not in this user's menu is off-limits to them
         return user_selection in self.get_menu_options()
 
+    @classmethod
+    def register(
+        cls,
+        db_service,
+        username: str,
+        password: str,
+        name: str,
+        email: str = None,
+        is_employee: bool = False,
+    ):
+        # Returns a new Employee or Customer on success, or None if registration failed
+        # (db_service already printed why - e.g. username taken).
+        record = db_service.add_user(username, password, name, email, is_employee)
+        if record is None:
+            return None
+        user_id, db_username, db_name, db_email, db_is_employee = record
+        if db_is_employee:
+            return Employee(
+                user_id=user_id, username=db_username, name=db_name, email=db_email
+            )
+        else:
+            return Customer(
+                user_id=user_id, username=db_username, name=db_name, email=db_email
+            )
+
+    @classmethod
+    def login(cls, db_service, username: str, password: str):
+        # Returns an Employee or Customer on success, or None if the username/password
+        # didn't match anything.
+        record = db_service.authenticate_user(username, password)
+        if record is None:
+            return None
+        user_id, db_username, db_name, db_email, is_employee = record
+        if is_employee:
+            return Employee(
+                user_id=user_id, username=db_username, name=db_name, email=db_email
+            )
+        else:
+            return Customer(
+                user_id=user_id, username=db_username, name=db_name, email=db_email
+            )
+
 
 class Employee(User):
     @property
@@ -58,10 +100,18 @@ class Employee(User):
         }
 
     @classmethod
-    def register(cls, db_service, username: str, password: str, name: str):
+    def register(
+        cls,
+        db_service,
+        username: str,
+        password: str,
+        name: str,
+        email: str = None,
+        _is_employee: bool = True,
+    ):
         # Returns a new Employee on success, or None if registration failed
         # (db_service already printed why - e.g. username taken).
-        record = db_service.add_employee(username, password, name)
+        record = db_service.add_employee(username, password, name, email)
         if record is None:
             return None
         employee_id, db_username, db_name, db_email = record
@@ -76,7 +126,7 @@ class Employee(User):
         record = db_service.authenticate_employee(username, password)
         if record is None:
             return None
-        employee_id, db_username, db_name, db_email = record
+        employee_id, db_username, db_name, db_email, is_employee = record
         return cls(
             user_id=employee_id, username=db_username, name=db_name, email=db_email
         )
@@ -103,7 +153,13 @@ class Customer(User):
 
     @classmethod
     def register(
-        cls, db_service, username: str, password: str, name: str, email: str = None
+        cls,
+        db_service,
+        username: str,
+        password: str,
+        name: str,
+        email: str = None,
+        _is_employee: bool = False,
     ):
         record = db_service.add_customer(username, password, name, email)
         if record is None:
@@ -118,7 +174,7 @@ class Customer(User):
         record = db_service.authenticate_customer(username, password)
         if record is None:
             return None
-        customer_id, db_username, db_name, db_email = record
+        customer_id, db_username, db_name, db_email, is_employee = record
         return cls(
             user_id=customer_id, username=db_username, name=db_name, email=db_email
         )

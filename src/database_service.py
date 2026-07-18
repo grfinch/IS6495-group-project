@@ -243,7 +243,7 @@ class DatabaseService(db.DBbase):
             self.connection.commit()
             user_id = self.cursor.lastrowid
             print(f"Created user account for {username}")
-            return (user_id, username, name, email)
+            return (user_id, username, name, email, is_employee)
         except sqlite3.IntegrityError:
             print("That username is already taken.")
             return None
@@ -298,15 +298,15 @@ class DatabaseService(db.DBbase):
         # Returns the user's public info if the password matches, else None
         try:
             row = self.cursor.execute(
-                "SELECT user_id, username, password_hash, salt, name, email FROM User WHERE username = ?",
+                "SELECT user_id, username, password_hash, salt, name, email, is_employee FROM User WHERE username = ?",
                 (username,),
             ).fetchone()
             if row is None:
                 return None
-            user_id, db_username, password_hash, salt, name, email = row
+            user_id, db_username, password_hash, salt, name, email, is_employee = row
             check_hash, _ = self._hash_password(password, salt)
             if check_hash == password_hash:
-                return (user_id, db_username, name, email)
+                return (user_id, db_username, name, email, is_employee)
             return None
         except Exception as e:
             print("An error occurred while logging in: ", e)
