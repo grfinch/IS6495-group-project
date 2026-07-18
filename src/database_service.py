@@ -313,10 +313,10 @@ class DatabaseService(db.DBbase):
             return None
 
     def add_employee(self, username: str, password: str, name: str):
-        self.add_user(username, password, name, is_employee=True)
+        return self.add_user(username, password, name, is_employee=True)
 
     def add_customer(self, username: str, password: str, name: str, email: str):
-        self.add_user(username, password, name, email, is_employee=False)
+        return self.add_user(username, password, name, email, is_employee=False)
 
     def authenticate_employee(self, username: str, password: str):
         return self.authenticate_user(username, password)
@@ -337,6 +337,8 @@ class DatabaseService(db.DBbase):
                 DROP TABLE IF EXISTS Bouquet;
                 DROP TABLE IF EXISTS Flower;
                 DROP TABLE IF EXISTS User;
+                DROP TABLE IF EXISTS Customer;
+                DROP TABLE IF EXISTS Employee;
 
                 CREATE TABLE Flower (
                     flower_id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -62,7 +62,7 @@ class Employee(User):
         record = db_service.add_employee(username, password, name)
         if record is None:
             return None
-        employee_id, db_username, db_name = record
+        employee_id, db_username, db_name, db_email = record
         return cls(user_id=employee_id, username=db_username, name=db_name)
 
     @classmethod
@@ -72,7 +72,7 @@ class Employee(User):
         record = db_service.authenticate_employee(username, password)
         if record is None:
             return None
-        employee_id, db_username, db_name = record
+        employee_id, db_username, db_name, db_email = record
         return cls(user_id=employee_id, username=db_username, name=db_name)
 
 

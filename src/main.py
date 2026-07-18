@@ -257,7 +257,7 @@ class Project:
                 input("Press return to continue...")
 
             elif user_selection == "remove customer":
-                customers = flower_shop.fetch_customer()
+                customers = flower_shop.fetch_user()
                 for customer in customers:
                     # customer = (customer_id, username, name, email)
                     print(f"  {customer[0]:>3} | {customer[1]} - {customer[2]}")
