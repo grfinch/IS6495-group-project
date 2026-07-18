@@ -312,8 +312,8 @@ class DatabaseService(db.DBbase):
             print("An error occurred while logging in: ", e)
             return None
 
-    def add_employee(self, username: str, password: str, name: str):
-        return self.add_user(username, password, name, is_employee=True)
+    def add_employee(self, username: str, password: str, name: str, email: str):
+        return self.add_user(username, password, name, email, is_employee=True)
 
     def add_customer(self, username: str, password: str, name: str, email: str):
         return self.add_user(username, password, name, email, is_employee=False)

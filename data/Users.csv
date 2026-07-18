@@ -1,0 +1,5 @@
+username,password,name,email,is_employee
+customer1,12345678,"Cal Jones",customer1@example.com,False
+customer2,qwertyui,"John Doe",customer2@example.com,False
+employee1,zxcvbnm,"Jane Smith",employee1@example.com,True
+employee2,asdfghj,"Bob Johnson",employee2@example.com,True

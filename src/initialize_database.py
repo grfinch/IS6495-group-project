@@ -21,3 +21,13 @@ with open("../data/Bouquets_With_Recipes.csv", "r") as bouquet_csv:
         flowers_and_quantity = eval(row["flowers_and_quantity"])
         bouquet = Bouquet(name, flowers_and_quantity)
         flower_shop.add_bouquet(bouquet)
+
+with open("../data/Users.csv", "r") as users_csv:
+    users_reader = csv.DictReader(users_csv)
+    for row in users_reader:
+        username = row["username"]
+        password = row["password"]
+        name = row["name"]
+        email = row["email"]
+        is_employee = row["is_employee"] == "True"
+        flower_shop.add_user(username, password, name, email, is_employee)
