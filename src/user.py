@@ -65,13 +65,9 @@ class Employee(User):
         if record is None:
             return None
         employee_id, db_username, db_name, db_email = record
-<<<<<<< Updated upstream
-        return cls(user_id=employee_id, username=db_username, name=db_name)
-=======
         return cls(
             user_id=employee_id, username=db_username, name=db_name, email=db_email
         )
->>>>>>> Stashed changes
 
     @classmethod
     def login(cls, db_service, username: str, password: str):
@@ -81,13 +77,9 @@ class Employee(User):
         if record is None:
             return None
         employee_id, db_username, db_name, db_email = record
-<<<<<<< Updated upstream
-        return cls(user_id=employee_id, username=db_username, name=db_name)
-=======
         return cls(
             user_id=employee_id, username=db_username, name=db_name, email=db_email
         )
->>>>>>> Stashed changes
 
 
 class Customer(User):
