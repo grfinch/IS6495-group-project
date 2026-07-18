@@ -18,10 +18,13 @@
 
 
 class User:
-    def __init__(self, user_id: int = None, username: str = "", name: str = ""):
+    def __init__(
+        self, user_id: int = None, username: str = "", name: str = "", email: str = None
+    ):
         self.user_id = user_id
         self.username = username
         self.name = name
+        self.email = email
 
     @property
     def role(self) -> str:
@@ -52,7 +55,6 @@ class Employee(User):
             "sell": "Sell a bouquet",
             "discontinue": "Discontinue a bouquet type",
             "exit": "Exit program",
-
         }
 
     @classmethod
@@ -63,7 +65,13 @@ class Employee(User):
         if record is None:
             return None
         employee_id, db_username, db_name, db_email = record
+<<<<<<< Updated upstream
         return cls(user_id=employee_id, username=db_username, name=db_name)
+=======
+        return cls(
+            user_id=employee_id, username=db_username, name=db_name, email=db_email
+        )
+>>>>>>> Stashed changes
 
     @classmethod
     def login(cls, db_service, username: str, password: str):
@@ -73,12 +81,20 @@ class Employee(User):
         if record is None:
             return None
         employee_id, db_username, db_name, db_email = record
+<<<<<<< Updated upstream
         return cls(user_id=employee_id, username=db_username, name=db_name)
+=======
+        return cls(
+            user_id=employee_id, username=db_username, name=db_name, email=db_email
+        )
+>>>>>>> Stashed changes
 
 
 class Customer(User):
-    def __init__(self, user_id: int = None, username: str = "", name: str = "", email: str = None):
-        super().__init__(user_id, username, name)
+    def __init__(
+        self, user_id: int = None, username: str = "", name: str = "", email: str = None
+    ):
+        super().__init__(user_id, username, name, email)
         self.email = email
 
     @property
@@ -94,12 +110,16 @@ class Customer(User):
         }
 
     @classmethod
-    def register(cls, db_service, username: str, password: str, name: str, email: str = None):
+    def register(
+        cls, db_service, username: str, password: str, name: str, email: str = None
+    ):
         record = db_service.add_customer(username, password, name, email)
         if record is None:
             return None
         customer_id, db_username, db_name, db_email = record
-        return cls(user_id=customer_id, username=db_username, name=db_name, email=db_email)
+        return cls(
+            user_id=customer_id, username=db_username, name=db_name, email=db_email
+        )
 
     @classmethod
     def login(cls, db_service, username: str, password: str):
@@ -107,4 +127,6 @@ class Customer(User):
         if record is None:
             return None
         customer_id, db_username, db_name, db_email = record
-        return cls(user_id=customer_id, username=db_username, name=db_name, email=db_email)
+        return cls(
+            user_id=customer_id, username=db_username, name=db_name, email=db_email
+        )
